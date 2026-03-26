@@ -1,0 +1,74 @@
+/* CSS 리셋 - 브라우저 기본 스타일 초기화 */
+
+/* 모든 요소에 box-sizing 적용 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* 기본 마진/패딩 제거 */
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/* HTML 루트 폰트 크기 설정 */
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* 기본 바디 스타일 */
+body {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 이미지 블록 표시 처리 */
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* 폼 요소 폰트 상속 */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+/* 텍스트 오버플로우 방지 */
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+/* 리스트 스타일 제거 */
+ul,
+ol {
+  list-style: none;
+}
+
+/* 버튼 기본 스타일 초기화 */
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* 링크 기본 스타일 초기화 */
+a {
+  text-decoration: none;
+  color: inherit;
+}

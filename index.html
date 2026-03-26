@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pomodoro 타이머</title>
+    <!-- 기본 스타일 임포트 -->
+    <link rel="stylesheet" href="/src/css/reset.css" />
+    <link rel="stylesheet" href="/src/css/style.css" />
+  </head>
+  <body>
+    <!-- 앱 루트 컨테이너 -->
+    <div id="app">
+      <!-- 헤더 영역 -->
+      <header class="app-header">
+        <h1 class="app-title">Pomodoro 타이머</h1>
+      </header>
+
+      <!-- 메인 타이머 영역 -->
+      <main class="timer-container">
+        <!-- 세션 유형 탭 -->
+        <nav class="session-tabs">
+          <button class="tab-btn tab-btn--active" data-mode="pomodoro">뽀모도로</button>
+          <button class="tab-btn" data-mode="short-break">짧은 휴식</button>
+          <button class="tab-btn" data-mode="long-break">긴 휴식</button>
+        </nav>
+
+        <!-- 타이머 표시 영역 -->
+        <section class="timer-display">
+          <div class="time-remaining" id="timeDisplay">25:00</div>
+        </section>
+
+        <!-- 타이머 컨트롤 버튼 -->
+        <section class="timer-controls">
+          <button class="btn btn--primary" id="startStopBtn">시작</button>
+          <button class="btn btn--secondary" id="resetBtn">초기화</button>
+        </section>
+
+        <!-- 세션 카운터 -->
+        <section class="session-counter">
+          <span class="session-label">완료한 뽀모도로</span>
+          <span class="session-count" id="sessionCount">0</span>
+        </section>
+      </main>
+
+      <!-- 설정 패널 (숨김 상태) -->
+      <aside class="settings-panel" id="settingsPanel" hidden>
+        <h2>설정</h2>
+        <!-- 향후 설정 항목 추가 예정 -->
+      </aside>
+    </div>
+
+    <!-- 앱 메인 진입점 (ES 모듈) -->
+    <script type="module" src="/src/js/app.js"></script>
+  </body>
+</html>

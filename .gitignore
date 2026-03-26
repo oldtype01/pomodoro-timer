@@ -1,0 +1,11 @@
+# 하네스 사이클 산출물
+.claude/harness/
+
+# 빌드 결과물
+dist/
+build/
+
+# Claude Code 로컬 설정
+.claude/settings.local.json
+.claude/agent-memory-local/
+CLAUDE.local.md
