@@ -13,6 +13,8 @@
     <div id="app">
       <!-- 헤더 영역 -->
       <header class="app-header">
+        <!-- 다크모드 토글 버튼 -->
+        <button class="theme-toggle" id="themeToggle" aria-label="테마 전환">🌙</button>
         <h1 class="app-title">Pomodoro 타이머</h1>
         <!-- 설정 열기 버튼 -->
         <button class="btn-settings" id="settingsBtn" aria-label="설정 열기">설정</button>
@@ -45,54 +47,64 @@
         </section>
       </main>
 
-      <!-- 설정 패널 (숨김 상태) -->
-      <aside class="settings-panel" id="settingsPanel" hidden>
-        <h2 class="settings-title">설정</h2>
-        <!-- 타이머 시간 설정 폼 -->
-        <form class="settings-form" id="settingsForm" novalidate>
-          <!-- 뽀모도로 시간 설정 -->
-          <div class="settings-field">
-            <label class="settings-label" for="settingPomodoro">뽀모도로 (분)</label>
-            <input
-              class="settings-input"
-              id="settingPomodoro"
-              type="number"
-              min="1"
-              max="99"
-              value="25"
-            />
+      <!-- 설정 모달 다이얼로그 -->
+      <div class="modal-overlay" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+        <aside class="settings-panel" id="settingsPanel">
+          <!-- 모달 헤더 -->
+          <div class="settings-header">
+            <h2 class="settings-title" id="settingsTitle">설정</h2>
+            <button class="modal-close-btn" id="settingsCloseBtn" aria-label="설정 닫기" type="button">×</button>
           </div>
-          <!-- 짧은 휴식 시간 설정 -->
-          <div class="settings-field">
-            <label class="settings-label" for="settingShortBreak">짧은 휴식 (분)</label>
-            <input
-              class="settings-input"
-              id="settingShortBreak"
-              type="number"
-              min="1"
-              max="99"
-              value="5"
-            />
-          </div>
-          <!-- 긴 휴식 시간 설정 -->
-          <div class="settings-field">
-            <label class="settings-label" for="settingLongBreak">긴 휴식 (분)</label>
-            <input
-              class="settings-input"
-              id="settingLongBreak"
-              type="number"
-              min="1"
-              max="99"
-              value="15"
-            />
-          </div>
-          <!-- 저장/취소 버튼 영역 -->
-          <div class="settings-actions">
-            <button class="btn btn--primary" type="button" id="settingsSaveBtn">저장</button>
-            <button class="btn btn--secondary" type="button" id="settingsCancelBtn">취소</button>
-          </div>
-        </form>
-      </aside>
+
+          <!-- 타이머 시간 설정 폼 -->
+          <form class="settings-form" id="settingsForm" novalidate>
+            <!-- 뽀모도로 시간 설정 -->
+            <div class="settings-field">
+              <label class="settings-label" for="settingPomodoro">뽀모도로 (분)</label>
+              <input
+                class="settings-input"
+                id="settingPomodoro"
+                type="number"
+                min="1"
+                max="99"
+                value="25"
+                aria-describedby="pomodoroHelp"
+              />
+            </div>
+            <!-- 짧은 휴식 시간 설정 -->
+            <div class="settings-field">
+              <label class="settings-label" for="settingShortBreak">짧은 휴식 (분)</label>
+              <input
+                class="settings-input"
+                id="settingShortBreak"
+                type="number"
+                min="1"
+                max="99"
+                value="5"
+                aria-describedby="shortBreakHelp"
+              />
+            </div>
+            <!-- 긴 휴식 시간 설정 -->
+            <div class="settings-field">
+              <label class="settings-label" for="settingLongBreak">긴 휴식 (분)</label>
+              <input
+                class="settings-input"
+                id="settingLongBreak"
+                type="number"
+                min="1"
+                max="99"
+                value="15"
+                aria-describedby="longBreakHelp"
+              />
+            </div>
+            <!-- 저장/취소 버튼 영역 -->
+            <div class="settings-actions">
+              <button class="btn btn--secondary" type="button" id="settingsCancelBtn">취소</button>
+              <button class="btn btn--primary" type="button" id="settingsSaveBtn">저장</button>
+            </div>
+          </form>
+        </aside>
+      </div>
     </div>
 
     <!-- 앱 메인 진입점 (ES 모듈) -->

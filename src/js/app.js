@@ -16,9 +16,13 @@ const uiElements = {
   resetBtn: null,
   sessionCount: null,
   tabBtns: null,
+  // 테마 관련 요소
+  themeToggle: null,
   // 설정 패널 관련 요소
   settingsBtn: null,
+  settingsModal: null,
   settingsPanel: null,
+  settingsCloseBtn: null,
   settingPomodoro: null,
   settingShortBreak: null,
   settingLongBreak: null,
@@ -32,6 +36,7 @@ const uiElements = {
 const appState = {
   sessionCount: 0,
   timer: null,
+  currentTheme: 'system',
 };
 
 /**
@@ -45,9 +50,14 @@ function initUiElements() {
   uiElements.sessionCount = document.getElementById('sessionCount');
   uiElements.tabBtns = document.querySelectorAll('.tab-btn');
 
+  // 테마 관련 요소 참조 캐싱
+  uiElements.themeToggle = document.getElementById('themeToggle');
+
   // 설정 패널 요소 참조 캐싱
   uiElements.settingsBtn = document.getElementById('settingsBtn');
+  uiElements.settingsModal = document.getElementById('settingsModal');
   uiElements.settingsPanel = document.getElementById('settingsPanel');
+  uiElements.settingsCloseBtn = document.getElementById('settingsCloseBtn');
   uiElements.settingPomodoro = document.getElementById('settingPomodoro');
   uiElements.settingShortBreak = document.getElementById('settingShortBreak');
   uiElements.settingLongBreak = document.getElementById('settingLongBreak');
@@ -110,11 +120,80 @@ function handleTimerComplete(mode) {
 }
 
 /**
+ * 테마 적용
+ * @param {string} theme - 적용할 테마 ('light', 'dark', 'system')
+ */
+function applyTheme(theme) {
+  const htmlElement = document.documentElement;
+
+  // 이전 테마 속성 제거
+  htmlElement.removeAttribute('data-theme');
+
+  // 새 테마 적용
+  if (theme !== 'system') {
+    htmlElement.setAttribute('data-theme', theme);
+  }
+
+  // 상태 업데이트
+  appState.currentTheme = theme;
+
+  // 토글 버튼 아이콘 업데이트
+  updateThemeToggleIcon(theme);
+}
+
+/**
+ * 테마 토글 버튼 아이콘 업데이트
+ * @param {string} theme - 현재 테마
+ */
+function updateThemeToggleIcon(theme) {
+  if (!uiElements.themeToggle) return;
+
+  const icons = {
+    light: '☀️',
+    dark: '🌙',
+    system: '🌗',
+  };
+
+  uiElements.themeToggle.textContent = icons[theme] || '🌗';
+  uiElements.themeToggle.setAttribute('aria-label', `현재 테마: ${theme}`);
+}
+
+/**
+ * 테마 토글
+ * light → dark → system → light 순서로 순환
+ */
+function toggleTheme() {
+  const themeOrder = ['light', 'dark', 'system'];
+  const currentIndex = themeOrder.indexOf(appState.currentTheme);
+  const nextIndex = (currentIndex + 1) % themeOrder.length;
+  const nextTheme = themeOrder[nextIndex];
+
+  // 테마 적용 및 저장
+  applyTheme(nextTheme);
+  StorageManager.saveTheme(nextTheme);
+}
+
+/**
+ * 시스템 테마 변경 감지
+ */
+function setupSystemThemeDetection() {
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+  // 시스템 테마 변경 시 자동 적용 (system 모드일 때만)
+  mediaQuery.addEventListener('change', () => {
+    if (appState.currentTheme === 'system') {
+      // system 모드에서는 CSS 미디어 쿼리가 자동으로 처리
+      updateThemeToggleIcon('system');
+    }
+  });
+}
+
+/**
  * 설정 패널 열기
  * 패널을 visible 상태로 변경하고 현재 durations 값을 입력 필드에 채움
  */
 function openSettingsPanel() {
-  if (!uiElements.settingsPanel) return;
+  if (!uiElements.settingsModal) return;
 
   // 현재 타이머 durations 값을 각 input에 채워 넣기
   if (uiElements.settingPomodoro) {
@@ -127,17 +206,65 @@ function openSettingsPanel() {
     uiElements.settingLongBreak.value = String(appState.timer.durations.longBreak);
   }
 
-  // 패널 표시 (hidden 속성 제거)
-  uiElements.settingsPanel.removeAttribute('hidden');
+  // 모달 표시
+  uiElements.settingsModal.classList.add('modal-overlay--active');
+
+  // 포커스 트랩 설정
+  trapFocus(uiElements.settingsModal);
+
+  // 첫 번째 입력 필드에 포커스
+  const firstInput = uiElements.settingsModal.querySelector('input');
+  if (firstInput) {
+    setTimeout(() => firstInput.focus(), 100);
+  }
 }
 
 /**
  * 설정 패널 닫기
- * 패널에 hidden 속성 복원
  */
 function closeSettingsPanel() {
-  if (!uiElements.settingsPanel) return;
-  uiElements.settingsPanel.setAttribute('hidden', '');
+  if (!uiElements.settingsModal) return;
+
+  // 모달 숨김
+  uiElements.settingsModal.classList.remove('modal-overlay--active');
+
+  // 설정 버튼으로 포커스 복귀
+  if (uiElements.settingsBtn) {
+    uiElements.settingsBtn.focus();
+  }
+}
+
+/**
+ * 포커스 트랩 구현
+ * @param {HTMLElement} element - 포커스를 가둘 요소
+ */
+function trapFocus(element) {
+  const focusableElements = element.querySelectorAll(
+    'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  );
+
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  function handleTabKey(e) {
+    if (e.key !== 'Tab') return;
+
+    if (e.shiftKey) {
+      // Shift + Tab
+      if (document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      }
+    } else {
+      // Tab
+      if (document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    }
+  }
+
+  element.addEventListener('keydown', handleTabKey);
 }
 
 /**
@@ -214,9 +341,19 @@ function bindEvents() {
     updateTimeDisplay(appState.timer.getFormattedTime());
   });
 
+  // 테마 토글 버튼 클릭 핸들러
+  uiElements.themeToggle?.addEventListener('click', () => {
+    toggleTheme();
+  });
+
   // 설정 열기 버튼 클릭 핸들러
   uiElements.settingsBtn?.addEventListener('click', () => {
     openSettingsPanel();
+  });
+
+  // 설정 닫기 버튼 클릭 핸들러 (× 버튼)
+  uiElements.settingsCloseBtn?.addEventListener('click', () => {
+    closeSettingsPanel();
   });
 
   // 설정 저장 버튼 클릭 핸들러
@@ -224,9 +361,23 @@ function bindEvents() {
     saveSettings();
   });
 
-  // 설정 취소/닫기 버튼 클릭 핸들러
+  // 설정 취소 버튼 클릭 핸들러
   uiElements.settingsCancelBtn?.addEventListener('click', () => {
     closeSettingsPanel();
+  });
+
+  // 모달 오버레이 클릭 시 닫기
+  uiElements.settingsModal?.addEventListener('click', (e) => {
+    if (e.target === uiElements.settingsModal) {
+      closeSettingsPanel();
+    }
+  });
+
+  // ESC 키로 모달 닫기
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && uiElements.settingsModal?.classList.contains('modal-overlay--active')) {
+      closeSettingsPanel();
+    }
   });
 
   // 모드 탭 클릭 핸들러
@@ -261,6 +412,11 @@ function bindEvents() {
 function initApp() {
   // UI 요소 초기화
   initUiElements();
+
+  // 테마 초기화
+  const savedTheme = StorageManager.loadTheme();
+  applyTheme(savedTheme);
+  setupSystemThemeDetection();
 
   // 저장된 세션 카운트 불러오기
   appState.sessionCount = StorageManager.loadSessionCount();

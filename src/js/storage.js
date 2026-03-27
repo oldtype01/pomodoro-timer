@@ -9,6 +9,7 @@ const STORAGE_KEYS = {
   SESSION_COUNT: 'pomodoro_session_count',
   TIMER_STATE: 'pomodoro_timer_state',
   DAILY_SESSIONS: 'pomodoro_daily_sessions',
+  THEME: 'pomodoro_theme',
 };
 
 /**
@@ -192,6 +193,43 @@ export const StorageManager = {
     } catch (error) {
       console.error('세션 추가 실패:', error);
       return false;
+    }
+  },
+
+  /**
+   * 테마 설정 저장
+   * @param {string} theme - 저장할 테마 값 ('light', 'dark', 'system')
+   * @returns {boolean} 저장 성공 여부
+   */
+  saveTheme(theme) {
+    try {
+      // 유효한 테마 값인지 검증
+      if (!['light', 'dark', 'system'].includes(theme)) {
+        throw new Error(`유효하지 않은 테마 값: ${theme}`);
+      }
+      localStorage.setItem(STORAGE_KEYS.THEME, theme);
+      return true;
+    } catch (error) {
+      console.error('테마 저장 실패:', error);
+      return false;
+    }
+  },
+
+  /**
+   * 테마 설정 불러오기
+   * @returns {string} 저장된 테마 값 ('light', 'dark', 'system' 중 하나, 기본값: 'system')
+   */
+  loadTheme() {
+    try {
+      const theme = localStorage.getItem(STORAGE_KEYS.THEME);
+      // 저장된 값이 없거나 유효하지 않은 경우 기본값 반환
+      if (!theme || !['light', 'dark', 'system'].includes(theme)) {
+        return 'system';
+      }
+      return theme;
+    } catch (error) {
+      console.error('테마 불러오기 실패:', error);
+      return 'system';
     }
   },
 
