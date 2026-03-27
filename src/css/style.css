@@ -171,6 +171,27 @@ body {
   transition: stroke-dashoffset 1s ease-in-out;
 }
 
+/* 중앙 타이머 정보 컨테이너 */
+.timer-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+/* 세션 유형 레이블 */
+.session-label {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.02em;
+  order: 1;
+}
+
 /* 중앙 시간 텍스트 */
 .time-remaining {
   font-size: var(--font-size-timer);
@@ -178,8 +199,7 @@ body {
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.05em;
   color: var(--color-text-primary);
-  position: relative;
-  z-index: 1;
+  order: 2;
 }
 
 /* ===== 타이머 컨트롤 버튼 ===== */
@@ -460,12 +480,24 @@ body {
   :root {
     --font-size-timer: clamp(3rem, 8vw, 4.5rem);
   }
+
+  .session-label {
+    font-size: 0.875rem;
+  }
+
+  .timer-info {
+    gap: 4px;
+  }
 }
 
 @media (max-width: 360px) {
   .circular-timer {
     width: 200px;
     height: 200px;
+  }
+
+  .session-label {
+    font-size: 0.75rem;
   }
 }
 

@@ -12,6 +12,7 @@ import { NotificationManager } from './notification.js';
  */
 const uiElements = {
   timeDisplay: null,
+  sessionLabel: null,
   progressRing: null,
   startStopBtn: null,
   resetBtn: null,
@@ -46,6 +47,7 @@ const appState = {
  */
 function initUiElements() {
   uiElements.timeDisplay = document.getElementById('timeDisplay');
+  uiElements.sessionLabel = document.getElementById('sessionLabel');
   uiElements.progressRing = document.getElementById('progressRing');
   uiElements.startStopBtn = document.getElementById('startStopBtn');
   uiElements.resetBtn = document.getElementById('resetBtn');
@@ -67,7 +69,7 @@ function initUiElements() {
   uiElements.settingsCancelBtn = document.getElementById('settingsCancelBtn');
 
   // 필수 요소 존재 여부 검증
-  const requiredElements = ['timeDisplay', 'startStopBtn', 'resetBtn', 'sessionCount'];
+  const requiredElements = ['timeDisplay', 'sessionLabel', 'startStopBtn', 'resetBtn', 'sessionCount'];
   for (const key of requiredElements) {
     if (!uiElements[key]) {
       console.error(`필수 UI 요소를 찾을 수 없습니다: #${key}`);
@@ -82,6 +84,11 @@ function initUiElements() {
 function updateTimeDisplay(formattedTime) {
   if (uiElements.timeDisplay) {
     uiElements.timeDisplay.textContent = formattedTime;
+  }
+
+  // 세션 레이블 업데이트
+  if (appState.timer) {
+    updateSessionLabel(appState.timer.currentMode);
   }
 
   // 원형 프로그레스 업데이트
@@ -127,6 +134,22 @@ function updateSessionCountDisplay() {
   if (uiElements.sessionCount) {
     uiElements.sessionCount.textContent = String(appState.sessionCount);
   }
+}
+
+/**
+ * 세션 레이블 UI 업데이트
+ * @param {string} mode - 현재 타이머 모드
+ */
+function updateSessionLabel(mode) {
+  if (!uiElements.sessionLabel) return;
+
+  const labelMap = {
+    pomodoro: '뽀모도로',
+    shortBreak: '짧은 휴식',
+    longBreak: '긴 휴식',
+  };
+
+  uiElements.sessionLabel.textContent = labelMap[mode] || '뽀모도로';
 }
 
 /**
@@ -426,6 +449,8 @@ function bindEvents() {
         appState.timer.setMode(modeMap[mode]);
         updateStartStopBtn(false);
         updateTimeDisplay(appState.timer.getFormattedTime());
+        // 모드 변경 시 세션 레이블 즉시 업데이트
+        updateSessionLabel(appState.timer.currentMode);
       } catch (error) {
         console.error('모드 변경 실패:', error);
       }
@@ -463,8 +488,9 @@ function initApp() {
     onComplete: handleTimerComplete,
   });
 
-  // 초기 시간 표시
+  // 초기 시간 및 세션 레이블 표시
   updateTimeDisplay(appState.timer.getFormattedTime());
+  updateSessionLabel(appState.timer.currentMode);
 
   // 이벤트 리스너 등록
   bindEvents();
