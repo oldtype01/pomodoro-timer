@@ -138,6 +138,36 @@ export class Timer {
   }
 
   /**
+   * 타이머 설정 시간(durations) 업데이트
+   * 타이머가 실행 중이지 않을 때만 현재 모드의 remainingSeconds를 즉시 갱신
+   * 실행 중인 경우 다음 reset/setMode 때 반영
+   * @param {object} newDurations - 새로운 설정값 { pomodoro, shortBreak, longBreak } (분 단위)
+   */
+  updateDurations(newDurations) {
+    // 유효하지 않은 입력 방어 처리
+    if (!newDurations || typeof newDurations !== 'object') {
+      console.error('유효하지 않은 durations 값:', newDurations);
+      return;
+    }
+
+    // durations 업데이트 (제공된 키만 덮어씀)
+    if (newDurations.pomodoro !== undefined) {
+      this.durations.pomodoro = newDurations.pomodoro;
+    }
+    if (newDurations.shortBreak !== undefined) {
+      this.durations.shortBreak = newDurations.shortBreak;
+    }
+    if (newDurations.longBreak !== undefined) {
+      this.durations.longBreak = newDurations.longBreak;
+    }
+
+    // 타이머가 정지 상태일 때만 현재 모드의 남은 시간 즉시 갱신
+    if (!this.isRunning) {
+      this.remainingSeconds = this.durations[this.currentMode] * 60;
+    }
+  }
+
+  /**
    * 남은 시간을 MM:SS 형식 문자열로 반환
    * @returns {string} 형식화된 시간 문자열
    */

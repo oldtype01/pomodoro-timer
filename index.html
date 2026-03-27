@@ -14,6 +14,8 @@
       <!-- 헤더 영역 -->
       <header class="app-header">
         <h1 class="app-title">Pomodoro 타이머</h1>
+        <!-- 설정 열기 버튼 -->
+        <button class="btn-settings" id="settingsBtn" aria-label="설정 열기">설정</button>
       </header>
 
       <!-- 메인 타이머 영역 -->
@@ -45,8 +47,51 @@
 
       <!-- 설정 패널 (숨김 상태) -->
       <aside class="settings-panel" id="settingsPanel" hidden>
-        <h2>설정</h2>
-        <!-- 향후 설정 항목 추가 예정 -->
+        <h2 class="settings-title">설정</h2>
+        <!-- 타이머 시간 설정 폼 -->
+        <form class="settings-form" id="settingsForm" novalidate>
+          <!-- 뽀모도로 시간 설정 -->
+          <div class="settings-field">
+            <label class="settings-label" for="settingPomodoro">뽀모도로 (분)</label>
+            <input
+              class="settings-input"
+              id="settingPomodoro"
+              type="number"
+              min="1"
+              max="99"
+              value="25"
+            />
+          </div>
+          <!-- 짧은 휴식 시간 설정 -->
+          <div class="settings-field">
+            <label class="settings-label" for="settingShortBreak">짧은 휴식 (분)</label>
+            <input
+              class="settings-input"
+              id="settingShortBreak"
+              type="number"
+              min="1"
+              max="99"
+              value="5"
+            />
+          </div>
+          <!-- 긴 휴식 시간 설정 -->
+          <div class="settings-field">
+            <label class="settings-label" for="settingLongBreak">긴 휴식 (분)</label>
+            <input
+              class="settings-input"
+              id="settingLongBreak"
+              type="number"
+              min="1"
+              max="99"
+              value="15"
+            />
+          </div>
+          <!-- 저장/취소 버튼 영역 -->
+          <div class="settings-actions">
+            <button class="btn btn--primary" type="button" id="settingsSaveBtn">저장</button>
+            <button class="btn btn--secondary" type="button" id="settingsCancelBtn">취소</button>
+          </div>
+        </form>
       </aside>
     </div>
 

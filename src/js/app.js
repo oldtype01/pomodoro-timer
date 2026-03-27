@@ -16,6 +16,14 @@ const uiElements = {
   resetBtn: null,
   sessionCount: null,
   tabBtns: null,
+  // 설정 패널 관련 요소
+  settingsBtn: null,
+  settingsPanel: null,
+  settingPomodoro: null,
+  settingShortBreak: null,
+  settingLongBreak: null,
+  settingsSaveBtn: null,
+  settingsCancelBtn: null,
 };
 
 /**
@@ -36,6 +44,15 @@ function initUiElements() {
   uiElements.resetBtn = document.getElementById('resetBtn');
   uiElements.sessionCount = document.getElementById('sessionCount');
   uiElements.tabBtns = document.querySelectorAll('.tab-btn');
+
+  // 설정 패널 요소 참조 캐싱
+  uiElements.settingsBtn = document.getElementById('settingsBtn');
+  uiElements.settingsPanel = document.getElementById('settingsPanel');
+  uiElements.settingPomodoro = document.getElementById('settingPomodoro');
+  uiElements.settingShortBreak = document.getElementById('settingShortBreak');
+  uiElements.settingLongBreak = document.getElementById('settingLongBreak');
+  uiElements.settingsSaveBtn = document.getElementById('settingsSaveBtn');
+  uiElements.settingsCancelBtn = document.getElementById('settingsCancelBtn');
 
   // 필수 요소 존재 여부 검증
   const requiredElements = ['timeDisplay', 'startStopBtn', 'resetBtn', 'sessionCount'];
@@ -93,6 +110,89 @@ function handleTimerComplete(mode) {
 }
 
 /**
+ * 설정 패널 열기
+ * 패널을 visible 상태로 변경하고 현재 durations 값을 입력 필드에 채움
+ */
+function openSettingsPanel() {
+  if (!uiElements.settingsPanel) return;
+
+  // 현재 타이머 durations 값을 각 input에 채워 넣기
+  if (uiElements.settingPomodoro) {
+    uiElements.settingPomodoro.value = String(appState.timer.durations.pomodoro);
+  }
+  if (uiElements.settingShortBreak) {
+    uiElements.settingShortBreak.value = String(appState.timer.durations.shortBreak);
+  }
+  if (uiElements.settingLongBreak) {
+    uiElements.settingLongBreak.value = String(appState.timer.durations.longBreak);
+  }
+
+  // 패널 표시 (hidden 속성 제거)
+  uiElements.settingsPanel.removeAttribute('hidden');
+}
+
+/**
+ * 설정 패널 닫기
+ * 패널에 hidden 속성 복원
+ */
+function closeSettingsPanel() {
+  if (!uiElements.settingsPanel) return;
+  uiElements.settingsPanel.setAttribute('hidden', '');
+}
+
+/**
+ * 설정값 유효성 검증 (1~99 범위)
+ * @param {number} value - 검증할 숫자
+ * @returns {boolean} 유효 여부
+ */
+function isValidDurationValue(value) {
+  return Number.isInteger(value) && value >= 1 && value <= 99;
+}
+
+/**
+ * 설정 저장
+ * input 값을 읽어 유효성 검증 후 저장, 타이머에 즉시 반영
+ */
+function saveSettings() {
+  // 각 입력값을 정수로 파싱
+  const pomodoroVal = parseInt(uiElements.settingPomodoro?.value ?? '', 10);
+  const shortBreakVal = parseInt(uiElements.settingShortBreak?.value ?? '', 10);
+  const longBreakVal = parseInt(uiElements.settingLongBreak?.value ?? '', 10);
+
+  // 유효성 검증: 1~99 범위를 벗어난 경우 저장 거부
+  if (!isValidDurationValue(pomodoroVal)) {
+    alert('뽀모도로 시간은 1~99분 사이로 입력해주세요.');
+    return;
+  }
+  if (!isValidDurationValue(shortBreakVal)) {
+    alert('짧은 휴식 시간은 1~99분 사이로 입력해주세요.');
+    return;
+  }
+  if (!isValidDurationValue(longBreakVal)) {
+    alert('긴 휴식 시간은 1~99분 사이로 입력해주세요.');
+    return;
+  }
+
+  const newSettings = {
+    pomodoro: pomodoroVal,
+    shortBreak: shortBreakVal,
+    longBreak: longBreakVal,
+  };
+
+  // LocalStorage에 설정 저장
+  StorageManager.saveSettings(newSettings);
+
+  // 타이머에 새 설정 즉시 반영
+  appState.timer.updateDurations(newSettings);
+
+  // 타이머 디스플레이 갱신
+  updateTimeDisplay(appState.timer.getFormattedTime());
+
+  // 설정 패널 닫기
+  closeSettingsPanel();
+}
+
+/**
  * 이벤트 리스너 등록
  */
 function bindEvents() {
@@ -112,6 +212,21 @@ function bindEvents() {
     appState.timer.reset();
     updateStartStopBtn(false);
     updateTimeDisplay(appState.timer.getFormattedTime());
+  });
+
+  // 설정 열기 버튼 클릭 핸들러
+  uiElements.settingsBtn?.addEventListener('click', () => {
+    openSettingsPanel();
+  });
+
+  // 설정 저장 버튼 클릭 핸들러
+  uiElements.settingsSaveBtn?.addEventListener('click', () => {
+    saveSettings();
+  });
+
+  // 설정 취소/닫기 버튼 클릭 핸들러
+  uiElements.settingsCancelBtn?.addEventListener('click', () => {
+    closeSettingsPanel();
   });
 
   // 모드 탭 클릭 핸들러
