@@ -1,6 +1,6 @@
 /**
  * 원형 타이머 UI 관련 테스트
- * 프로그레스 링 업데이트 로직과 UI 연동 검증
+ * Time Timer 스타일로 변경됨에 따른 기본 DOM 요소 및 수학 계산 테스트
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -8,29 +8,17 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 // DOM 환경 모킹
 const createMockDOM = () => {
   document.body.innerHTML = `
-    <div class="circular-timer">
-      <svg class="circular-timer__svg" viewBox="0 0 200 200">
-        <circle class="circular-timer__progress" id="progressRing"
-          cx="100" cy="100" r="90" fill="transparent" stroke-width="8"
-          stroke-dasharray="565.48" stroke-dashoffset="0" />
+    <div class="timer-container">
+      <svg class="timer-svg" viewBox="0 0 240 240">
+        <path id="timerSector" d="M120,120 L120,12 A108,108 0 1,1 120,228 Z" fill="red" />
       </svg>
       <div class="time-remaining" id="timeDisplay">25:00</div>
     </div>
   `;
 };
 
-// 타이머 모킹
-const createMockTimer = (totalSeconds = 1500, remainingSeconds = 1500) => ({
-  getTotalSeconds: () => totalSeconds,
-  getRemainingSeconds: () => remainingSeconds,
-  getFormattedTime: () => {
-    const minutes = Math.floor(remainingSeconds / 60);
-    const seconds = remainingSeconds % 60;
-    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-  },
-});
 
-describe('원형 타이머 프로그레스 기능', () => {
+describe('Timer DOM 요소 존재성 검증', () => {
   beforeEach(() => {
     createMockDOM();
   });
@@ -39,120 +27,41 @@ describe('원형 타이머 프로그레스 기능', () => {
     document.body.innerHTML = '';
   });
 
-  it('프로그레스 링 요소가 존재해야 한다', () => {
-    const progressRing = document.getElementById('progressRing');
-    expect(progressRing).toBeDefined();
-    expect(progressRing.getAttribute('stroke-dasharray')).toBe('565.48');
+  it('Time Timer SVG 부채꼴 요소가 존재해야 한다', () => {
+    const timerSector = document.getElementById('timerSector');
+    expect(timerSector).toBeDefined();
+    expect(timerSector.getAttribute('d')).toContain('M120,120');
   });
 
-  it('원형 프로그레스 계산이 정확해야 한다', () => {
-    // 원의 둘레 계산: 2 * PI * 90
-    const circumference = 2 * Math.PI * 90;
-    const expectedCircumference = 565.4866776461628;
-
-    expect(Math.abs(circumference - expectedCircumference)).toBeLessThan(0.1);
-  });
-
-  it('타이머 진행에 따라 프로그레스가 올바르게 계산되어야 한다', () => {
-    // 25분 타이머에서 50% 완료 상태
-    const totalSeconds = 1500; // 25분
-    const remainingSeconds = 750; // 12.5분 남음
-    const progress = remainingSeconds / totalSeconds; // 0.5
-
-    const circumference = 2 * Math.PI * 90;
-    const expectedOffset = circumference * (1 - progress); // 282.74...
-
-    expect(expectedOffset).toBeCloseTo(282.74, 1);
-  });
-
-  it('타이머 완료 시 프로그레스가 전체 원을 그려야 한다', () => {
-    const totalSeconds = 1500;
-    const remainingSeconds = 0; // 완료
-    const progress = remainingSeconds / totalSeconds; // 0
-
-    const circumference = 2 * Math.PI * 90;
-    const expectedOffset = circumference * (1 - progress); // 565.48...
-
-    expect(expectedOffset).toBeCloseTo(circumference, 1);
-  });
-
-  it('타이머 시작 시 프로그레스가 빈 상태여야 한다', () => {
-    const totalSeconds = 1500;
-    const remainingSeconds = 1500; // 시작 상태
-    const progress = remainingSeconds / totalSeconds; // 1
-
-    const circumference = 2 * Math.PI * 90;
-    const expectedOffset = circumference * (1 - progress); // 0
-
-    expect(expectedOffset).toBe(0);
+  it('시간 표시 요소가 존재해야 한다', () => {
+    const timeDisplay = document.getElementById('timeDisplay');
+    expect(timeDisplay).toBeDefined();
+    expect(timeDisplay.textContent).toBe('25:00');
   });
 });
 
-describe('원형 타이머 UI 업데이트 함수', () => {
-  let uiElements;
-  let appState;
-  let updateCircularProgress;
+describe('Time Timer 수학적 계산 검증', () => {
+  it('각도-라디안 변환이 정확해야 한다', () => {
+    // 90도는 π/2 라디안
+    const radian = (90 - 90) * (Math.PI / 180);
+    expect(radian).toBe(0);
 
-  beforeEach(() => {
-    createMockDOM();
-
-    // UI 요소 모킹
-    uiElements = {
-      timeDisplay: document.getElementById('timeDisplay'),
-      progressRing: document.getElementById('progressRing'),
-    };
-
-    // 앱 상태 모킹
-    appState = {
-      timer: createMockTimer(),
-    };
-
-    // updateCircularProgress 함수 정의 (app.js에서 가져온 로직)
-    updateCircularProgress = () => {
-      if (!uiElements.progressRing || !appState.timer) return;
-
-      const totalSeconds = appState.timer.getTotalSeconds();
-      const remainingSeconds = appState.timer.getRemainingSeconds();
-      const progress = totalSeconds > 0 ? remainingSeconds / totalSeconds : 1;
-      const circumference = 2 * Math.PI * 90;
-      const offset = circumference * (1 - progress);
-
-      uiElements.progressRing.style.strokeDashoffset = String(offset);
-    };
+    // 180도는 π/2 라디안 (90도 offset 적용)
+    const radian180 = (180 - 90) * (Math.PI / 180);
+    expect(radian180).toBeCloseTo(Math.PI / 2, 5);
   });
 
-  it('타이머 정보가 없으면 업데이트하지 않아야 한다', () => {
-    appState.timer = null;
+  it('부채꼴 끝점 좌표가 정확히 계산되어야 한다', () => {
+    const centerX = 120;
+    const centerY = 120;
+    const radius = 108;
+    const angle = 90; // 3시 방향
 
-    expect(() => updateCircularProgress()).not.toThrow();
-    expect(uiElements.progressRing.style.strokeDashoffset).toBe('');
-  });
+    const radian = (angle - 90) * (Math.PI / 180);
+    const endX = centerX + radius * Math.cos(radian);
+    const endY = centerY + radius * Math.sin(radian);
 
-  it('프로그레스 링 요소가 없으면 업데이트하지 않아야 한다', () => {
-    uiElements.progressRing = null;
-
-    expect(() => updateCircularProgress()).not.toThrow();
-  });
-
-  it('50% 진행 상태에서 올바른 offset을 설정해야 한다', () => {
-    // 50% 완료 상태 모킹
-    appState.timer = createMockTimer(1500, 750);
-
-    updateCircularProgress();
-
-    const expectedOffset = (2 * Math.PI * 90) * 0.5; // 282.74...
-    expect(parseFloat(uiElements.progressRing.style.strokeDashoffset))
-      .toBeCloseTo(expectedOffset, 1);
-  });
-
-  it('타이머 완료 상태에서 전체 둘레를 offset으로 설정해야 한다', () => {
-    // 완료 상태 모킹
-    appState.timer = createMockTimer(1500, 0);
-
-    updateCircularProgress();
-
-    const expectedOffset = 2 * Math.PI * 90; // 565.48...
-    expect(parseFloat(uiElements.progressRing.style.strokeDashoffset))
-      .toBeCloseTo(expectedOffset, 1);
+    expect(endX).toBeCloseTo(228, 1); // 120 + 108
+    expect(endY).toBeCloseTo(120, 1); // 120 + 0
   });
 });

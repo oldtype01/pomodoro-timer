@@ -185,9 +185,9 @@ describe('접근성 기능', () => {
   test('모달에 적절한 ARIA 속성이 설정되어야 한다', () => {
     // HTML 구조 검증을 위한 테스트
     const expectedAriaAttributes = {
-      'role': 'dialog',
+      role: 'dialog',
       'aria-modal': 'true',
-      'aria-labelledby': 'settingsTitle'
+      'aria-labelledby': 'settingsTitle',
     };
 
     function validateModalAccessibility(modalElement) {
@@ -200,7 +200,7 @@ describe('접근성 기능', () => {
     }
 
     const mockModalElement = {
-      getAttribute: vi.fn((attr) => expectedAriaAttributes[attr])
+      getAttribute: vi.fn((attr) => expectedAriaAttributes[attr]),
     };
 
     const isValid = validateModalAccessibility(mockModalElement);

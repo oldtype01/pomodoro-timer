@@ -13,7 +13,7 @@ import { NotificationManager } from './notification.js';
 const uiElements = {
   timeDisplay: null,
   sessionLabel: null,
-  progressRing: null,
+  timerSector: null,
   startStopBtn: null,
   resetBtn: null,
   sessionCount: null,
@@ -48,7 +48,7 @@ const appState = {
 function initUiElements() {
   uiElements.timeDisplay = document.getElementById('timeDisplay');
   uiElements.sessionLabel = document.getElementById('sessionLabel');
-  uiElements.progressRing = document.getElementById('progressRing');
+  uiElements.timerSector = document.getElementById('timerSector');
   uiElements.startStopBtn = document.getElementById('startStopBtn');
   uiElements.resetBtn = document.getElementById('resetBtn');
   uiElements.sessionCount = document.getElementById('sessionCount');
@@ -69,7 +69,13 @@ function initUiElements() {
   uiElements.settingsCancelBtn = document.getElementById('settingsCancelBtn');
 
   // 필수 요소 존재 여부 검증
-  const requiredElements = ['timeDisplay', 'sessionLabel', 'startStopBtn', 'resetBtn', 'sessionCount'];
+  const requiredElements = [
+    'timeDisplay',
+    'sessionLabel',
+    'startStopBtn',
+    'resetBtn',
+    'sessionCount',
+  ];
   for (const key of requiredElements) {
     if (!uiElements[key]) {
       console.error(`필수 UI 요소를 찾을 수 없습니다: #${key}`);
@@ -91,30 +97,88 @@ function updateTimeDisplay(formattedTime) {
     updateSessionLabel(appState.timer.currentMode);
   }
 
-  // 원형 프로그레스 업데이트
-  updateCircularProgress();
+  // Time Timer 부채꼴 업데이트
+  updateTimerSector();
 }
 
 /**
- * 원형 프로그레스 링 업데이트
- * 현재 타이머 진행 상태에 따라 stroke-dashoffset 조정
+ * Time Timer 부채꼴 영역 업데이트
+ * 현재 타이머 진행 상태에 따라 부채꼴 영역의 각도를 조정
  */
-function updateCircularProgress() {
-  if (!uiElements.progressRing || !appState.timer) return;
+function updateTimerSector() {
+  if (!uiElements.timerSector || !appState.timer) return;
 
   const totalSeconds = appState.timer.getTotalSeconds();
   const remainingSeconds = appState.timer.getRemainingSeconds();
 
-  // 프로그레스 계산 (0: 완료, 1: 시작)
-  const progress = totalSeconds > 0 ? remainingSeconds / totalSeconds : 1;
+  // 프로그레스 계산 (0: 완료, 1: 시작) - 엣지케이스 안전 처리
+  let progress = totalSeconds > 0 ? remainingSeconds / totalSeconds : 1;
 
-  // 원의 둘레 (반지름 90px)
-  const circumference = 2 * Math.PI * 90;
+  // 엣지케이스 처리: progress 값을 0~1 범위로 제한
+  progress = Math.max(0, Math.min(1, progress));
 
-  // stroke-dashoffset 계산 (남은 시간에 비례하여 줄어듦)
-  const offset = circumference * (1 - progress);
+  // 세션 유형별 색상 설정
+  const currentMode = appState.timer.currentMode;
+  const colorMap = {
+    pomodoro: 'var(--color-pomodoro)',
+    shortBreak: 'var(--color-short-break)',
+    longBreak: 'var(--color-long-break)',
+  };
 
-  uiElements.progressRing.style.strokeDashoffset = String(offset);
+  const sectorColor = colorMap[currentMode] || 'var(--color-pomodoro)';
+  uiElements.timerSector.setAttribute('fill', sectorColor);
+
+  // 부채꼴 각도 계산 (12시부터 시계방향, 전체 원 = 360도)
+  let angle = progress * 360;
+
+  // 엣지케이스 처리: angle을 0~360 범위로 제한
+  angle = Math.max(0, Math.min(360, angle));
+
+  // SVG path 생성 - 엣지케이스 안전 처리
+  const pathData = generateSectorPath(angle);
+  uiElements.timerSector.setAttribute('d', pathData);
+}
+
+/**
+ * SVG 부채꼴 path 생성 함수 (엣지케이스 안전 처리)
+ * @param {number} angle - 부채꼴 각도 (0~360도)
+ * @returns {string} SVG path 문자열
+ */
+function generateSectorPath(angle) {
+  const centerX = 120;
+  const centerY = 120;
+  const radius = 108;
+
+  // 엣지케이스 처리: 유효하지 않은 숫자값 검증
+  let validAngle = angle;
+  if (typeof angle !== 'number' || isNaN(angle)) {
+    validAngle = 0;
+  } else if (!isFinite(angle)) {
+    // Infinity나 -Infinity의 경우 적절한 값으로 처리
+    validAngle = angle > 0 ? 360 : 0;
+  }
+
+  // 엣지케이스 처리: 각도 범위 검증 및 제한
+  const safeAngle = Math.max(0, Math.min(360, validAngle));
+
+  if (safeAngle >= 360) {
+    // 전체 원 - 완전히 닫힌 원을 위한 미세한 간격 사용
+    return `M${centerX},${centerY} L${centerX},${centerY - radius} A${radius},${radius} 0 1,1 ${centerX - 0.01},${centerY - radius} Z`;
+  } else if (safeAngle <= 0) {
+    // 부채꼴 없음 - 중심점만 표시
+    return `M${centerX},${centerY} L${centerX},${centerY} Z`;
+  } else {
+    // 일반적인 부채꼴 계산
+    const radian = (safeAngle - 90) * (Math.PI / 180);
+    const endX = centerX + radius * Math.cos(radian);
+    const endY = centerY + radius * Math.sin(radian);
+
+    // 큰 호 여부 (180도 초과)
+    const largeArcFlag = safeAngle > 180 ? 1 : 0;
+
+    // SVG path 생성
+    return `M${centerX},${centerY} L${centerX},${centerY - radius} A${radius},${radius} 0 ${largeArcFlag},1 ${endX},${endY} Z`;
+  }
 }
 
 /**
@@ -364,6 +428,8 @@ function saveSettings() {
 
   // 타이머 디스플레이 갱신
   updateTimeDisplay(appState.timer.getFormattedTime());
+  // 모드 변경 시 색상 즉시 업데이트
+  updateTimerSector();
 
   // 설정 패널 닫기
   closeSettingsPanel();
@@ -425,7 +491,10 @@ function bindEvents() {
 
   // ESC 키로 모달 닫기
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && uiElements.settingsModal?.classList.contains('modal-overlay--active')) {
+    if (
+      e.key === 'Escape' &&
+      uiElements.settingsModal?.classList.contains('modal-overlay--active')
+    ) {
       closeSettingsPanel();
     }
   });
@@ -451,6 +520,8 @@ function bindEvents() {
         updateTimeDisplay(appState.timer.getFormattedTime());
         // 모드 변경 시 세션 레이블 즉시 업데이트
         updateSessionLabel(appState.timer.currentMode);
+        // 모드 변경 시 색상 즉시 업데이트
+        updateTimerSector();
       } catch (error) {
         console.error('모드 변경 실패:', error);
       }

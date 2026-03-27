@@ -9,6 +9,11 @@
   --color-text-secondary: #757575;
   --color-accent: #e53935;
   --color-accent-hover: #b71c1c;
+
+  /* 세션 유형별 색상 */
+  --color-pomodoro: #e53935;
+  --color-short-break: #43a047;
+  --color-long-break: #1976d2;
   --color-border: #e0e0e0;
   --color-btn-secondary-bg: #eeeeee;
   --color-btn-secondary-hover: #bdbdbd;
@@ -27,13 +32,18 @@
 }
 
 /* 다크 테마 (클래스 기반) */
-[data-theme="dark"] {
+[data-theme='dark'] {
   --color-bg-primary: #121212;
   --color-bg-secondary: #1e1e1e;
   --color-text-primary: #f5f5f5;
   --color-text-secondary: #9e9e9e;
   --color-accent: #ef5350;
   --color-accent-hover: #e53935;
+
+  /* 세션 유형별 색상 (다크) */
+  --color-pomodoro: #ef5350;
+  --color-short-break: #66bb6a;
+  --color-long-break: #42a5f5;
   --color-border: #333333;
   --color-btn-secondary-bg: #2c2c2c;
   --color-btn-secondary-hover: #424242;
@@ -41,13 +51,18 @@
 
 /* 시스템 테마 감지 (기본값) */
 @media (prefers-color-scheme: dark) {
-  [data-theme="system"] {
+  [data-theme='system'] {
     --color-bg-primary: #121212;
     --color-bg-secondary: #1e1e1e;
     --color-text-primary: #f5f5f5;
     --color-text-secondary: #9e9e9e;
     --color-accent: #ef5350;
     --color-accent-hover: #e53935;
+
+    /* 세션 유형별 색상 (시스템 다크) */
+    --color-pomodoro: #ef5350;
+    --color-short-break: #66bb6a;
+    --color-long-break: #42a5f5;
     --color-border: #333333;
     --color-btn-secondary-bg: #2c2c2c;
     --color-btn-secondary-hover: #424242;
@@ -137,38 +152,71 @@ body {
   padding: var(--spacing-md) 0;
 }
 
-/* 원형 타이머 컨테이너 */
-.circular-timer {
+/* Time Timer 스타일 시계 컨테이너 */
+.time-timer {
   position: relative;
-  width: 280px;
-  height: 280px;
+  width: 320px;
+  height: 320px;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Time Timer 검정 테두리의 둥근 사각형 프레임 */
+  background-color: #2a2a2a;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.15),
+    inset 0 0 0 4px #1a1a1a,
+    inset 0 0 0 6px #444444;
 }
 
-/* SVG 원형 시계 */
-.circular-timer__svg {
+/* SVG Time Timer 시계 */
+.time-timer__svg {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 50%;
+  left: 50%;
+  width: 280px;
+  height: 280px;
+  transform: translate(-50%, -50%);
   pointer-events: none;
 }
 
-/* 배경 링 스타일 */
-.circular-timer__background {
-  stroke: var(--color-border);
-  opacity: 0.2;
+/* 시계 배경 원판 */
+.time-timer__background {
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.1));
 }
 
-/* 프로그레스 링 스타일 */
-.circular-timer__progress {
-  stroke: var(--color-accent);
-  stroke-linecap: round;
-  transition: stroke-dashoffset 1s ease-in-out;
+/* 부채꼴 진행 영역 */
+.time-timer__sector {
+  transition: d 0.3s ease-out;
+}
+
+/* 중앙 점 */
+.time-timer__center {
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.2));
+}
+
+/* 눈금선 스타일 */
+.tick-major {
+  stroke-width: 2;
+}
+
+.tick-minor {
+  stroke-width: 1;
+  opacity: 0.7;
+}
+
+/* 숫자 레이블 스타일 */
+.tick-number {
+  font-family:
+    'Segoe UI',
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  fill: black;
 }
 
 /* 중앙 타이머 정보 컨테이너 */
@@ -274,7 +322,9 @@ body {
   font-weight: 500;
   background-color: var(--color-btn-secondary-bg);
   color: var(--color-text-secondary);
-  transition: background-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
 }
 
 .btn-settings:hover {
@@ -293,7 +343,9 @@ body {
   font-weight: 500;
   background-color: var(--color-btn-secondary-bg);
   color: var(--color-text-secondary);
-  transition: background-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
   cursor: pointer;
   user-select: none;
 }
@@ -318,7 +370,9 @@ body {
   padding: var(--spacing-md);
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
 }
 
 .modal-overlay.modal-overlay--active {
@@ -368,7 +422,9 @@ body {
   color: var(--color-text-secondary);
   font-size: 1.5rem;
   line-height: 1;
-  transition: background-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
   cursor: pointer;
 }
 
@@ -464,17 +520,27 @@ body {
     --color-btn-secondary-bg: #ffffff;
   }
 
-  [data-theme="dark"] {
+  [data-theme='dark'] {
     --color-border: #ffffff;
     --color-btn-secondary-bg: #000000;
   }
 }
 
-/* 반응형 원형 타이머 */
+/* 반응형 Time Timer */
 @media (max-width: 480px) {
-  .circular-timer {
+  .time-timer {
+    width: 280px;
+    height: 280px;
+    padding: 16px;
+  }
+
+  .time-timer__svg {
     width: 240px;
     height: 240px;
+  }
+
+  .tick-number {
+    font-size: 14px;
   }
 
   :root {
@@ -491,9 +557,19 @@ body {
 }
 
 @media (max-width: 360px) {
-  .circular-timer {
+  .time-timer {
+    width: 240px;
+    height: 240px;
+    padding: 12px;
+  }
+
+  .time-timer__svg {
     width: 200px;
     height: 200px;
+  }
+
+  .tick-number {
+    font-size: 12px;
   }
 
   .session-label {
