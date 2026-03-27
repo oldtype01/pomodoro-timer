@@ -12,6 +12,7 @@ import { NotificationManager } from './notification.js';
  */
 const uiElements = {
   timeDisplay: null,
+  progressRing: null,
   startStopBtn: null,
   resetBtn: null,
   sessionCount: null,
@@ -45,6 +46,7 @@ const appState = {
  */
 function initUiElements() {
   uiElements.timeDisplay = document.getElementById('timeDisplay');
+  uiElements.progressRing = document.getElementById('progressRing');
   uiElements.startStopBtn = document.getElementById('startStopBtn');
   uiElements.resetBtn = document.getElementById('resetBtn');
   uiElements.sessionCount = document.getElementById('sessionCount');
@@ -74,13 +76,38 @@ function initUiElements() {
 }
 
 /**
- * 타이머 디스플레이 업데이트
+ * 타이머 디스플레이 업데이트 (텍스트 + 원형 프로그레스)
  * @param {string} formattedTime - MM:SS 형식의 시간 문자열
  */
 function updateTimeDisplay(formattedTime) {
   if (uiElements.timeDisplay) {
     uiElements.timeDisplay.textContent = formattedTime;
   }
+
+  // 원형 프로그레스 업데이트
+  updateCircularProgress();
+}
+
+/**
+ * 원형 프로그레스 링 업데이트
+ * 현재 타이머 진행 상태에 따라 stroke-dashoffset 조정
+ */
+function updateCircularProgress() {
+  if (!uiElements.progressRing || !appState.timer) return;
+
+  const totalSeconds = appState.timer.getTotalSeconds();
+  const remainingSeconds = appState.timer.getRemainingSeconds();
+
+  // 프로그레스 계산 (0: 완료, 1: 시작)
+  const progress = totalSeconds > 0 ? remainingSeconds / totalSeconds : 1;
+
+  // 원의 둘레 (반지름 90px)
+  const circumference = 2 * Math.PI * 90;
+
+  // stroke-dashoffset 계산 (남은 시간에 비례하여 줄어듦)
+  const offset = circumference * (1 - progress);
+
+  uiElements.progressRing.style.strokeDashoffset = String(offset);
 }
 
 /**

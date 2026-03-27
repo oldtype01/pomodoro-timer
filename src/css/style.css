@@ -137,12 +137,49 @@ body {
   padding: var(--spacing-md) 0;
 }
 
+/* 원형 타이머 컨테이너 */
+.circular-timer {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* SVG 원형 시계 */
+.circular-timer__svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* 배경 링 스타일 */
+.circular-timer__background {
+  stroke: var(--color-border);
+  opacity: 0.2;
+}
+
+/* 프로그레스 링 스타일 */
+.circular-timer__progress {
+  stroke: var(--color-accent);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s ease-in-out;
+}
+
+/* 중앙 시간 텍스트 */
 .time-remaining {
   font-size: var(--font-size-timer);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.05em;
   color: var(--color-text-primary);
+  position: relative;
+  z-index: 1;
 }
 
 /* ===== 타이머 컨트롤 버튼 ===== */
@@ -413,6 +450,25 @@ body {
   }
 }
 
+/* 반응형 원형 타이머 */
+@media (max-width: 480px) {
+  .circular-timer {
+    width: 240px;
+    height: 240px;
+  }
+
+  :root {
+    --font-size-timer: clamp(3rem, 8vw, 4.5rem);
+  }
+}
+
+@media (max-width: 360px) {
+  .circular-timer {
+    width: 200px;
+    height: 200px;
+  }
+}
+
 /* 모션 감소 선호 사용자를 위한 설정 */
 @media (prefers-reduced-motion: reduce) {
   .modal-overlay,
@@ -422,7 +478,8 @@ body {
   .theme-toggle,
   .modal-close-btn,
   .btn-settings,
-  .settings-input {
+  .settings-input,
+  .circular-timer__progress {
     transition: none;
   }
 }

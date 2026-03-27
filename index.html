@@ -31,7 +31,35 @@
 
         <!-- 타이머 표시 영역 -->
         <section class="timer-display">
-          <div class="time-remaining" id="timeDisplay">25:00</div>
+          <!-- SVG 원형 시계 -->
+          <div class="circular-timer">
+            <svg class="circular-timer__svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <!-- 배경 링 -->
+              <circle
+                class="circular-timer__background"
+                cx="100"
+                cy="100"
+                r="90"
+                fill="transparent"
+                stroke-width="8"
+              />
+              <!-- 프로그레스 링 -->
+              <circle
+                class="circular-timer__progress"
+                id="progressRing"
+                cx="100"
+                cy="100"
+                r="90"
+                fill="transparent"
+                stroke-width="8"
+                stroke-dasharray="565.48"
+                stroke-dashoffset="0"
+                transform="rotate(-90 100 100)"
+              />
+            </svg>
+            <!-- 중앙 시간 텍스트 -->
+            <div class="time-remaining" id="timeDisplay">25:00</div>
+          </div>
         </section>
 
         <!-- 타이머 컨트롤 버튼 -->

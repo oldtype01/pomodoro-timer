@@ -179,6 +179,22 @@ export class Timer {
   }
 
   /**
+   * 현재 모드의 총 시간을 초 단위로 반환
+   * @returns {number} 총 시간 (초)
+   */
+  getTotalSeconds() {
+    return this.durations[this.currentMode] * 60;
+  }
+
+  /**
+   * 남은 시간을 초 단위로 반환
+   * @returns {number} 남은 시간 (초)
+   */
+  getRemainingSeconds() {
+    return this.remainingSeconds;
+  }
+
+  /**
    * requestAnimationFrame 기반 업데이트 루프 시작 (폴백으로 setInterval 사용)
    * @private
    */
