@@ -20,7 +20,7 @@
 
   /* 타이포그래피 */
   --font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  --font-size-timer: clamp(2.5rem, 6vw, 4rem);
+  --font-size-timer: clamp(1.5rem, 4vw, 2.5rem);
 
   /* 레이아웃 */
   --max-width: 480px;
@@ -544,7 +544,7 @@ body {
   }
 
   :root {
-    --font-size-timer: clamp(3rem, 8vw, 4.5rem);
+    --font-size-timer: clamp(1.5rem, 5vw, 2rem);
   }
 
   .session-label {
