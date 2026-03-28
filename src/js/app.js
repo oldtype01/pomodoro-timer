@@ -111,8 +111,8 @@ function updateTimerSector() {
   const totalSeconds = appState.timer.getTotalSeconds();
   const remainingSeconds = appState.timer.getRemainingSeconds();
 
-  // 프로그레스 계산 (0: 완료, 1: 시작) - 엣지케이스 안전 처리
-  let progress = totalSeconds > 0 ? remainingSeconds / totalSeconds : 1;
+  // 프로그레스 계산 (0: 시작, 1: 완료) - 경과 시간 기준으로 변경
+  let progress = totalSeconds > 0 ? (totalSeconds - remainingSeconds) / totalSeconds : 0;
 
   // 엣지케이스 처리: progress 값을 0~1 범위로 제한
   progress = Math.max(0, Math.min(1, progress));
